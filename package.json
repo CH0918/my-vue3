@@ -1,0 +1,31 @@
+{
+  "name": "my-vue3",
+  "version": "1.0.0",
+  "description": "学习vue3.0源码",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CH0918/my-vue3.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/CH0918/my-vue3/issues"
+  },
+  "homepage": "https://github.com/CH0918/my-vue3#readme",
+	"devDependencies": {
+    "@babel/core": "^7.15.0",
+    "@babel/preset-env": "^7.15.0",
+    "@babel/preset-typescript": "^7.15.0",
+    "@types/jest": "^27.0.0",
+    "babel-jest": "^27.0.6",
+    "jest": "^27.1.1",
+		"ts-jest": "^27.0.5",
+    "tslib": "^2.3.1",
+    "typescript": "^4.4.3"
+  }
+}
