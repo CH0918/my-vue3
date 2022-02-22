@@ -1,4 +1,5 @@
 import { reactive } from '../src/reactive';
+import { effect } from '../src/effect';
 describe('reactive', () => {
   test('Object', () => {
     const original = { foo: 1 };
@@ -7,11 +8,19 @@ describe('reactive', () => {
     // expect(isReactive(observed)).toBe(true);
     // expect(isReactive(original)).toBe(false);
     // get
-    expect(observed.foo).toBe(1);
-    //     // has
-    expect('foo' in observed).toBe(true);
-    //     // ownKeys
-    expect(Object.keys(observed)).toEqual(['foo']);
+    // expect(observed.foo).toBe(1);
+    // //     // has
+    // expect('foo' in observed).toBe(true);
+    // //     // ownKeys
+    // expect(Object.keys(observed)).toEqual(['foo']);
+
+    let bar;
+    effect(() => {
+      bar = observed.foo;
+    });
+    expect(bar).toBe(1);
+    observed.foo = 2;
+    expect(bar).toBe(2);
   });
 
   // test('nested reactives', () => {
