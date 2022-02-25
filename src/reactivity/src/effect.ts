@@ -1,6 +1,7 @@
 // import { targetMap } from './reactive';
 
 let activeEffect;
+let shouldTrack = false;
 export const targetMap = new WeakMap();
 export class ReactiveEffect {
   private _fn;
@@ -14,14 +15,16 @@ export class ReactiveEffect {
     this.scheduler = scheduler;
   }
   run() {
-    // active 控制是否收集依赖
-    // if (!this.active) {
-    //   // 不需要收集依赖，直接返回 执行fn
-    //   return this._fn();
-    // }
+    // 触发effect中的fn，将收集依赖开关打开
+    shouldTrack = true;
     // 执行effect的fn同时，把当前的effect实例抛出去
     activeEffect = this;
-    return this._fn();
+    const result = this._fn();
+
+    // 执行完fn 意味着依赖已收集完毕，重置状态
+    shouldTrack = false;
+    activeEffect = undefined;
+    return result;
   }
   stop() {
     if (this.active) {
@@ -33,11 +36,16 @@ export class ReactiveEffect {
     }
   }
 }
+// 清除依赖
 function cleanupEffect(effect) {
   // 清空所有的依赖
   effect.deps.forEach((dep: any) => {
     dep.delete(effect);
   });
+}
+
+function shouldTracking() {
+  return shouldTrack && activeEffect !== undefined;
 }
 export function effect(fn, options: any = {}) {
   const __effect = new ReactiveEffect(fn, options.scheduler);
@@ -52,6 +60,7 @@ export function stop(runner) {
 }
 // 收集依赖
 export function track(target, key) {
+  if (!shouldTracking()) return;
   // targetMap -> key: target, value: deps
   // depsMap -> key: key, value: dep
   // dep: effect set
