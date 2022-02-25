@@ -1,6 +1,6 @@
 import { track, trigger } from './effect';
 import { mutableHandlers } from './baseHandlers';
-export const targetMap = new Map();
+// export const targetMap = new Map();
 export const reactiveMap = new WeakMap();
 export const enum ReactiveFlags {
   IS_REACTIVE = '__v_isReactive',
@@ -8,6 +8,7 @@ export const enum ReactiveFlags {
 export function reactive(target) {
   return createReactiveObject(target, reactiveMap, mutableHandlers);
 }
+
 export function createReactiveObject(target, reactiveMap, baseHandlers) {
   let reactiveProxy;
   // 缓存proxy对象

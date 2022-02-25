@@ -1,5 +1,5 @@
 import { reactive, isReactive } from '../src/reactive';
-import { effect } from '../src/effect';
+import { effect, stop } from '../src/effect';
 
 describe('effect', () => {
   it('should run the passed function once (wrapped by a effect)', () => {
@@ -64,57 +64,74 @@ describe('effect', () => {
     counter.num = 2;
     expect(dummy).toBe(2);
   });
-  // it("scheduler", () => {
-  //   let dummy;
-  //   let run: any;
-  //   const scheduler = jest.fn(() => {
-  //     run = runner;
-  //   });
-  //   const obj = reactive({ foo: 1 });
-  //   const runner = effect(
-  //     () => {
-  //       dummy = obj.foo;
-  //     },
-  //     { scheduler }
-  //   );
-  //   expect(scheduler).not.toHaveBeenCalled();
-  //   expect(dummy).toBe(1);
-  //   // should be called on first trigger
-  //   obj.foo++;
-  //   expect(scheduler).toHaveBeenCalledTimes(1);
-  //   // // should not run yet
-  //   expect(dummy).toBe(1);
-  //   // // manually run
-  //   run();
-  //   // // should have run
-  //   expect(dummy).toBe(2);
-  // });
+  it('runner', () => {
+    // 1.effect(fn) -> 返回一个function runner -> 执行runner返回fn的返回结果
+    let age = 0;
+    const runner = effect(() => {
+      age++;
+      return 'hello';
+    });
+    expect(age).toBe(1);
+    let res = runner();
+    expect(age).toBe(2);
+    expect(res).toBe('hello');
+  });
+  it('scheduler', () => {
+    let dummy;
+    let run: any;
+    const scheduler = jest.fn(() => {
+      run = runner;
+    });
+    const obj = reactive({ foo: 1 });
 
-  // it("stop", () => {
-  //   let dummy;
-  //   const obj = reactive({ prop: 1 });
-  //   const runner = effect(() => {
-  //     dummy = obj.prop;
-  //   });
-  //   obj.prop = 2;
-  //   expect(dummy).toBe(2);
-  //   stop(runner);
-  //   // obj.prop = 3
-  //   obj.prop++;
-  //   expect(dummy).toBe(2);
+    // 1.马上触发fn
+    // 2.更新时不触发fn，触发scheduler
+    // 3.将fn返回出去
+    const runner = effect(
+      () => {
+        dummy = obj.foo;
+      },
+      { scheduler }
+    );
+    expect(scheduler).not.toHaveBeenCalled();
+    expect(dummy).toBe(1);
+    // should be called on first trigger
+    obj.foo++;
+    expect(scheduler).toHaveBeenCalledTimes(1);
+    // // should not run yet
+    expect(dummy).toBe(1);
+    // // manually run
+    run();
+    // // should have run
+    expect(dummy).toBe(2);
+  });
 
-  //   // stopped effect should still be manually callable
-  //   runner();
-  //   expect(dummy).toBe(3);
-  // });
+  it('stop', () => {
+    // 1.正常触发fn 2.调用stop update数据不再执行fn 3.执行runner，再次触发响应式
+    let dummy;
+    const obj = reactive({ prop: 1 });
+    const runner = effect(() => {
+      dummy = obj.prop;
+    });
+    obj.prop = 2;
+    expect(dummy).toBe(2);
+    stop(runner);
+    obj.prop = 3;
+    // obj.prop++;
+    expect(dummy).toBe(2);
 
-  // it("events: onStop", () => {
-  //   const onStop = jest.fn();
-  //   const runner = effect(() => {}, {
-  //     onStop,
-  //   });
+    // stopped effect should still be manually callable
+    runner();
+    expect(dummy).toBe(3);
+  });
 
-  //   stop(runner);
-  //   expect(onStop).toHaveBeenCalled();
-  // });
+  it('events: onStop', () => {
+    const onStop = jest.fn();
+    const runner = effect(() => {}, {
+      onStop,
+    });
+
+    stop(runner);
+    expect(onStop).toHaveBeenCalled();
+  });
 });
