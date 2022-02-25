@@ -7,6 +7,7 @@ export class ReactiveEffect {
   public scheduler: Function | undefined;
   active = true;
   deps = [];
+  public onStop?: () => void;
 
   constructor(fn, scheduler?: Function) {
     this._fn = fn;
@@ -27,6 +28,9 @@ export class ReactiveEffect {
       cleanupEffect(this);
       this.active = false;
     }
+    if (this.onStop) {
+      this.onStop();
+    }
   }
 }
 function cleanupEffect(effect) {
@@ -39,8 +43,8 @@ export function effect(fn, options: any = {}) {
   const __effect = new ReactiveEffect(fn, options.scheduler);
   Object.assign(__effect, options);
   __effect.run();
-  let runner = __effect.run.bind(__effect);
-  (runner as any).effect = __effect;
+  let runner: any = __effect.run.bind(__effect);
+  runner.effect = __effect;
   return runner;
 }
 export function stop(runner) {
