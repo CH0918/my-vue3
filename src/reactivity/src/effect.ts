@@ -5,14 +5,14 @@ let shouldTrack = false;
 export const targetMap = new WeakMap();
 export class ReactiveEffect {
   private _fn;
-  public scheduler: Function | undefined;
+  // public scheduler: Function | undefined;
   active = true;
   deps = [];
   public onStop?: () => void;
 
-  constructor(fn, scheduler?: Function) {
+  constructor(fn) {
     this._fn = fn;
-    this.scheduler = scheduler;
+    // this.scheduler = scheduler;
   }
   run() {
     // 触发effect中的fn，将收集依赖开关打开
@@ -48,7 +48,7 @@ function shouldTracking() {
   return shouldTrack && activeEffect !== undefined;
 }
 export function effect(fn, options: any = {}) {
-  const __effect = new ReactiveEffect(fn, options.scheduler);
+  const __effect = new ReactiveEffect(fn);
   Object.assign(__effect, options);
   __effect.run();
   let runner: any = __effect.run.bind(__effect);

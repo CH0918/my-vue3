@@ -1,4 +1,4 @@
-import { reactive, isReactive } from '../src/reactive';
+import { reactive } from '../src/reactive';
 import { effect, stop } from '../src/effect';
 
 describe('effect', () => {
