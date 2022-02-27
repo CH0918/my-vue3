@@ -5,11 +5,13 @@ import {
   readonly,
   reactive,
   ReactiveFlags,
+  isProxy,
 } from './reactive';
 import { isObject } from '../../shared';
 const get = createGetter();
 const set = createSetter();
 const readonlyGet = createGetter(true);
+const shallowReadonlyGet = createGetter(true, true);
 export const mutableHandlers = {
   get,
   set,
@@ -25,24 +27,27 @@ export const readonlyHandlers = {
     return true;
   },
 };
-export function createGetter(isReadOnly = false) {
+export const shallowReadonlyHandlers = Object.assign({}, readonlyHandlers, {
+  get: shallowReadonlyGet,
+});
+export function createGetter(isReadonly = false, isShallowReadonly = false) {
   return function get(target, key) {
     // 兼容isReactive方法
     if (key === ReactiveFlags.IS_REACTIVE) {
-      return !isReadOnly;
+      return !isReadonly;
     }
     if (key === ReactiveFlags.IS_READONLY) {
-      return isReadOnly;
+      return isReadonly;
     }
     const res = Reflect.get(target, key);
-    if (isReadOnly && isObject(res)) {
-      return readonly(res);
+    if (isShallowReadonly) {
+      return res;
+    }
+    if (isObject(res)) {
+      return isReadonly ? readonly(res) : reactive(res);
     }
     // 收集依赖
     track(target, key);
-    if (isObject(res)) {
-      return reactive(res);
-    }
     return res;
   };
 }

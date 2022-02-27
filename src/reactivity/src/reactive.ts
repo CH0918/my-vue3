@@ -1,4 +1,8 @@
-import { mutableHandlers, readonlyHandlers } from './baseHandlers';
+import {
+  mutableHandlers,
+  readonlyHandlers,
+  shallowReadonlyHandlers,
+} from './baseHandlers';
 // export const targetMap = new Map();
 export const proxyMap = new WeakMap();
 export const enum ReactiveFlags {
@@ -13,6 +17,9 @@ export function readonly(target) {
 }
 export function isReadonly(value) {
   return !!value[ReactiveFlags.IS_READONLY];
+}
+export function shallowReadonly(target) {
+  return createReactiveObject(target, proxyMap, shallowReadonlyHandlers);
 }
 export function isProxy(value) {
   return isReadonly(value) || isReactive(value);
