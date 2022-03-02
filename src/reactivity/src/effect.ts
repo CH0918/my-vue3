@@ -44,7 +44,7 @@ function cleanupEffect(effect) {
   });
 }
 
-function shouldTracking() {
+export function isTracking() {
   return shouldTrack && activeEffect !== undefined;
 }
 export function effect(fn, options: any = {}) {
@@ -60,7 +60,7 @@ export function stop(runner) {
 }
 // 收集依赖
 export function track(target, key) {
-  if (!shouldTracking()) return;
+  if (!isTracking()) return;
   // targetMap -> key: target, value: deps
   // depsMap -> key: key, value: dep
   // dep: effect set
@@ -75,6 +75,9 @@ export function track(target, key) {
     dep = new Set();
     depsMap.set(key, dep);
   }
+  trackEffect(dep);
+}
+export function trackEffect(dep) {
   dep.add(activeEffect);
   // 反向收集，每个effet持有所有的依赖
   activeEffect.deps.push(dep);
@@ -83,6 +86,9 @@ export function track(target, key) {
 export function trigger(target, key) {
   let depsMap = targetMap.get(target);
   let dep = depsMap.get(key);
+  triggerEffect(dep);
+}
+export function triggerEffect(dep) {
   for (const effect of dep) {
     if (effect.scheduler) {
       effect.scheduler();
