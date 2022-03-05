@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://unpkg.com/vue@next"></script>
+    <title>Document</title>
+  </head>
+  <body>
+    <div id="app">
+      computedValue: {{ reactiveObj.age }}
+      <button @click="changeValue">computedValue +1</button>
+    </div>
+  </body>
+  <script>
+    const Counter = {
+      setup() {
+        const counter = Vue.ref(1);
+        const reactiveObj = Vue.reactive({
+          age: 1,
+        });
+        const computedValue = Vue.computed(() => {
+          console.log('computed running...');
+          return reactiveObj.age;
+        });
+        // reactiveObj.age = 2;
+        const changeValue = () => {
+          reactiveObj.age++;
+        };
+        return {
+          counter,
+          computedValue,
+          changeValue,
+          reactiveObj,
+        };
+      },
+    };
+    Vue.createApp(Counter).mount('#app');
+  </script>
+</html>

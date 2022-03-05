@@ -1,23 +1,28 @@
 import { isObject } from '../../shared';
+import { createDep } from './dep';
 import { isTracking, trackEffect, triggerEffect } from './effect';
 import { reactive } from './reactive';
 class RefImpl {
   private _value;
-  dep = new Set();
+  // dep = new Set();
+  dep = createDep();
   __v_isRef_ = true;
   constructor(value) {
     this._value = convert(value);
   }
   get value() {
-    if (isTracking()) {
-      trackEffect(this.dep);
-    }
+    trackRefValue(this);
     return this._value;
   }
   set value(newValue) {
     if (!hasChange(this.value, newValue)) return;
     this._value = convert(newValue);
     triggerEffect(this.dep);
+  }
+}
+function trackRefValue(ref) {
+  if (isTracking()) {
+    trackEffect(ref.dep);
   }
 }
 function convert(value) {

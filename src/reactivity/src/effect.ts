@@ -1,5 +1,7 @@
 // import { targetMap } from './reactive';
 
+import { createDep } from './dep';
+
 let activeEffect;
 let shouldTrack = false;
 export const targetMap = new WeakMap();
@@ -10,7 +12,7 @@ export class ReactiveEffect {
   deps = [];
   public onStop?: () => void;
 
-  constructor(fn) {
+  constructor(fn, public scheduler?) {
     this._fn = fn;
     // this.scheduler = scheduler;
   }
@@ -72,7 +74,8 @@ export function track(target, key) {
   }
   let dep = depsMap.get(key);
   if (!dep) {
-    dep = new Set();
+    // dep = new Set();
+    dep = createDep();
     depsMap.set(key, dep);
   }
   trackEffect(dep);
@@ -85,6 +88,7 @@ export function trackEffect(dep) {
 // 触发依赖
 export function trigger(target, key) {
   let depsMap = targetMap.get(target);
+  if (!depsMap) return;
   let dep = depsMap.get(key);
   triggerEffect(dep);
 }
