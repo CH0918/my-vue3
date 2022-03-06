@@ -2,7 +2,8 @@
   "name": "my-vue3",
   "version": "1.0.0",
   "description": "学习vue3.0源码",
-  "main": "index.js",
+  "main": "lib/my-vue.cjs.js",
+	"module": "lib/my-vue.esm.js",
   "scripts": {
     "test": "jest",
 		"build": "rollup -c rollup.config.js"

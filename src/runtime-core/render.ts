@@ -7,6 +7,7 @@ function patch(vnode, container) {
   // 处理组件类型
   processComponent(vnode, container);
   // todo 处理element类型
+  // processElement
 }
 function processComponent(vnode: any, container: any) {
   // 挂载节点
