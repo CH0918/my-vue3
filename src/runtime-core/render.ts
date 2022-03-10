@@ -5,9 +5,37 @@ export function render(vnode, container) {
 }
 function patch(vnode, container) {
   // 处理组件类型
-  processComponent(vnode, container);
-  // todo 处理element类型
-  // processElement
+  if (typeof vnode.type === 'string') {
+    processElement(vnode, container);
+  } else if (typeof vnode.type === 'object') {
+    processComponent(vnode, container);
+  }
+}
+function processElement(vnode: any, container: any) {
+  // 挂载元素节点
+  mountElement(vnode, container);
+}
+
+function mountElement(vnode: any, container: any) {
+  // vnode -> {type: 'div', props: 'hi xxxxx', children: undefined}
+  const el = document.createElement(vnode.type);
+  const { props, children } = vnode;
+  // children 可能是string 也可能是array
+  if (typeof children === 'string') {
+    el.textContent = children;
+  } else if (Array.isArray(children)) {
+    mountChildren(vnode, el);
+  }
+  for (const key in props) {
+    const val = props[key];
+    el.setAttribute(key, val);
+  }
+  container.append(el);
+}
+function mountChildren(vnode, container) {
+  vnode.children.forEach((vnode) => {
+    patch(vnode, container);
+  });
 }
 function processComponent(vnode: any, container: any) {
   // 挂载节点
