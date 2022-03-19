@@ -1,4 +1,6 @@
 import { PublicInstanceProxyHandlers } from './componentPublicInstance';
+import { initProps } from './componentProps';
+import { shallowReadonly } from './../reactivity/src/reactive';
 export function createComponentInstance(vnode) {
   const instance = {
     vnode,
@@ -6,6 +8,8 @@ export function createComponentInstance(vnode) {
     proxy: {},
     ctx: {},
     // setupState，render
+    setupState: {},
+    props: {},
   };
   instance.ctx = {
     _: instance,
@@ -14,8 +18,8 @@ export function createComponentInstance(vnode) {
 }
 
 export function setupComponent(instance) {
-  // todo
-  // initProps();
+  // A 组件 传props 到 B组件
+  initProps(instance, instance.vnode.props);
   // initSlots();
   // 初始化有状态的组件，相对于无状态的函数组件来说的
   setupStatefulComponent(instance);
@@ -27,7 +31,7 @@ function setupStatefulComponent(instance: any) {
 
   if (setup) {
     // setupResult -> function: render函数，Object
-    const setupResult = setup();
+    const setupResult = setup(shallowReadonly(instance.props));
     handleSetupResult(instance, setupResult);
   }
 }
