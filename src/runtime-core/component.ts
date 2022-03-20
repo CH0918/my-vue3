@@ -1,8 +1,9 @@
 import { PublicInstanceProxyHandlers } from './componentPublicInstance';
 import { initProps } from './componentProps';
 import { shallowReadonly } from './../reactivity/src/reactive';
+import { emit } from './componentEmit';
 export function createComponentInstance(vnode) {
-  const instance = {
+  const component = {
     vnode,
     type: vnode.type,
     proxy: {},
@@ -10,11 +11,13 @@ export function createComponentInstance(vnode) {
     // setupState，render
     setupState: {},
     props: {},
+    emit: () => {},
   };
-  instance.ctx = {
-    _: instance,
+  component.emit = emit as any;
+  component.ctx = {
+    _: component,
   };
-  return instance;
+  return component;
 }
 
 export function setupComponent(instance) {
@@ -31,7 +34,10 @@ function setupStatefulComponent(instance: any) {
 
   if (setup) {
     // setupResult -> function: render函数，Object
-    const setupResult = setup(shallowReadonly(instance.props));
+    const setupResult = setup(shallowReadonly(instance.props), {
+      //  此处不需要用户传入instance, 只需要传入事件名称即可
+      emit: instance.emit.bind(null, instance),
+    });
     handleSetupResult(instance, setupResult);
   }
 }
