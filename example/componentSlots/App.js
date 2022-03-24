@@ -1,5 +1,6 @@
 import { h } from '../../lib/my-vue.esm.js';
 import { Foo } from './Foo.js';
+import { createTextVNode } from '../../lib/my-vue.esm.js';
 
 export default {
   name: 'App',
@@ -9,7 +10,10 @@ export default {
       Foo,
       {},
       {
-        header: (user) => h('p', {}, 'header' + user.name),
+        header: (user) => [
+          h('p', {}, 'header' + user.name),
+          createTextVNode('hahah'),
+        ],
         footer: () => h('p', {}, 'footer'),
       }
     );

@@ -1,5 +1,6 @@
 import { ShapeFlags } from '../shared/ShapeFlags';
 import { createComponentInstance, setupComponent } from './component';
+import { Fragment, Text } from './vnode';
 
 export function render(vnode, container) {
   console.log('render...', vnode);
@@ -7,18 +8,37 @@ export function render(vnode, container) {
 }
 function patch(vnode, container) {
   // 处理组件类型
-  const { shapeFlag } = vnode;
-  // 通过位运算符来控制
-  // 组件类型 ： 0010
-  // 元素类型 ： 0001
-  if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
-    console.log('处理组件 vnode', vnode);
-    processComponent(vnode, container);
-  } else if (shapeFlag & ShapeFlags.ELEMENT) {
-    processElement(vnode, container);
+  const { shapeFlag, type } = vnode;
+  switch (type) {
+    // 处理插槽多出一个没用的元素这种情况
+    case Fragment:
+      processFragment(vnode, container);
+      break;
+    case Text:
+      processText(vnode, container);
+      break;
+    default:
+      // 通过位运算符来控制
+      // 组件类型 ： 0010
+      // 元素类型 ： 0001
+      if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
+        console.log('处理组件 vnode', vnode);
+        processComponent(vnode, container);
+      } else if (shapeFlag & ShapeFlags.ELEMENT) {
+        processElement(vnode, container);
+      }
+      break;
   }
 }
 
+function processFragment(vnode, container) {
+  mountChildren(vnode, container);
+}
+function processText(vnode: any, container: any) {
+  const { children } = vnode;
+  const textContent = (vnode.el = document.createTextNode(children));
+  container.append(textContent);
+}
 // 处理组件
 function processComponent(initialVnode: any, container: any) {
   // 挂载节点
