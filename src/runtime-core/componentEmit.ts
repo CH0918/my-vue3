@@ -1,7 +1,7 @@
 import { toHandleKey } from '../shared';
 
 export function emit(instance, event: string, ...args) {
-  console.log('event = ', event);
+  console.log('instance ==== ', instance);
   const { props } = instance;
 
   const handleName = toHandleKey(event);

@@ -12,6 +12,7 @@ export function createVNode(type, props?, children?) {
   } else if (Array.isArray(vnode.children)) {
     vnode.shapeFlag |= ShapeFlags.ARRAY_CHILDREN;
   }
+  normalizeChildren(vnode, children);
   return vnode;
 }
 function getShapeFlag(type: any) {
@@ -20,4 +21,13 @@ function getShapeFlag(type: any) {
   return typeof type === 'string'
     ? ShapeFlags.ELEMENT
     : ShapeFlags.STATEFUL_COMPONENT;
+}
+function normalizeChildren(vnode, children) {
+  if (typeof children === 'object') {
+    if (vnode.shapeFlag & ShapeFlags.ELEMENT) {
+    } else {
+      // 渲染组件类型，那么children只能是插槽的形式插进来
+      vnode.shapeFlag |= ShapeFlags.SLOTS_CHILDREN;
+    }
+  }
 }

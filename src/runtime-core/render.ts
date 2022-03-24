@@ -2,6 +2,7 @@ import { ShapeFlags } from '../shared/ShapeFlags';
 import { createComponentInstance, setupComponent } from './component';
 
 export function render(vnode, container) {
+  console.log('render...', vnode);
   patch(vnode, container);
 }
 function patch(vnode, container) {
@@ -11,6 +12,7 @@ function patch(vnode, container) {
   // 组件类型 ： 0010
   // 元素类型 ： 0001
   if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
+    console.log('处理组件 vnode', vnode);
     processComponent(vnode, container);
   } else if (shapeFlag & ShapeFlags.ELEMENT) {
     processElement(vnode, container);
