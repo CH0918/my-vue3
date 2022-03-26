@@ -30,17 +30,20 @@ export function setupComponent(instance) {
   // 初始化有状态的组件，相对于无状态的函数组件来说的
   setupStatefulComponent(instance);
 }
+let currentInstance = null;
 function setupStatefulComponent(instance: any) {
   const component = instance.type;
   instance.proxy = new Proxy({ _: instance }, PublicInstanceProxyHandlers);
   const { setup } = component;
 
   if (setup) {
+    setCurrentInstance(instance);
     // setupResult -> function: render函数，Object
     const setupResult = setup(shallowReadonly(instance.props), {
       //  此处不需要用户传入instance, 只需要传入事件名称即可
       emit: instance.emit.bind(null, instance),
     });
+    setCurrentInstance(null);
     handleSetupResult(instance, setupResult);
   }
 }
@@ -59,4 +62,11 @@ function finishComponentSetup(instance: any) {
   if (component.render) {
     instance.render = component.render;
   }
+}
+
+export function getCurrentInstance() {
+  return currentInstance;
+}
+export function setCurrentInstance(instance) {
+  currentInstance = instance;
 }
